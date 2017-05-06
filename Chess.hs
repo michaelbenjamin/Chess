@@ -1,11 +1,15 @@
 data Piece = Piece Color Type | Nothing
 data Color = White | Black
+instance Eq Color where
+    White == White = True
+    Black == Black = True
+    _ ==  _        = False
 data Type = King | Queen | Rook | Bishop | Knight | Pawn
 
 type Position = (Int,Int)
 data Square = Square Position Piece
-
-startBoard :: [[Square]]
+    
+startBoard :: [Square]
 startBoard = undefined
 
 
@@ -18,6 +22,8 @@ knightMove (x,y) = [(x2,y2) | (x2,y2) <- [(x+2,y+1),(x+2,y-1),(x+1,y+2),
                      x2 >= 1 && x2 <= 8 && y2 >= 1 && y2 <= 8]
 rookMove (x,y)  = moveN (x,y) ++ moveS (x,y) ++ moveE (x,y) ++ moveW (x,y)
 queenMove (x,y) = bishopMove (x,y) ++ rookMove (x,y)
+pawnMove (x,y) = undefined
+
 
 moveN (x,y) = [(x,y+z) | z <- [1..8], (y+z) <= 8]
 moveS (x,y) = [(x,y-z) | z <- [1..8], y-z >= 1]
@@ -39,13 +45,24 @@ checkIfCanMove (x:xs) Black pos = case checkIfPiece x pos of
                                     Main.Nothing -> x:checkIfCanMove xs Black pos  
                                     Piece White _ -> [x]
                                     otherwise     -> []  
---This is a look up in O(n) and be done in O(1)
+--This is a look up in O(n) and can be done in O(1)
 checkIfPiece :: Position -> [Square] -> Piece
 checkIfPiece _ [] = error "the square doesnt exist"
 checkIfPiece coord (Square coord2 p:xs) = case coord2 == coord of
                                                 True -> p
                                                 _    -> checkIfPiece coord xs
-                                                
+
+--All pieces for a specific player 
+getAllPiecesSq :: Color -> [Square] -> [Square]
+getAllPiecesSq c pos = filter (isPieceColor c) pos
+
+isPieceColor :: Color -> Square -> Bool
+isPieceColor _ (Square _ Main.Nothing) = False
+isPieceColor c (Square _ (Piece c2 _)) = c == c2
+                                              
+
+
+
 
 
 
